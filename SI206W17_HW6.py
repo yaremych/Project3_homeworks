@@ -172,7 +172,7 @@ print("\n\n***** Problem 9 *****")
 
 ## Note that you can use another list you have already created for this problem.
 
-
+names_with_not_too_much_seniority = [x.name for x in programmers if len(x.name) > x.years_UM]
 
 
 ## [PROBLEM 10]
@@ -192,19 +192,40 @@ print("\n\n***** Problem 10 *****")
 
 # Define readfiles (make sure to close the file reference in the right place)
 
+def readfiles(list_of_filenames):
+    for filename in list_of_filenames:
+        f = open(filename, "r")
+        for line in f.readlines(): 
+            yield line
+            f.close()
+
 
 # Define len_check
+
+def len_check(gen):
+    for line in gen: 
+        if len(line) > 40:
+            yield line
 
 
 # Define main_filterer
 
+def main_filterer(list_of_filenames):
+    all_lines = readfiles(list_of_filenames)
+    long_lines = len_check(all_lines)
+    for line in long_lines: 
+        yield line
+
 
 
 ## Uncomment this code to test so you can see easily what results from your code. DO uncomment it. DO NOT delete or change it. (You can add other code above while you work, of course.)
-# provided_file_names = ["samplehw6_1.txt","samplehw6_2.txt"]
-# for ln in main_filterer(provided_file_names):
-#     print(ln.rstrip('\n'), end=" ")
+provided_file_names = ["samplehw6_1.txt","samplehw6_2.txt"]
+for ln in main_filterer(provided_file_names):
+    print(ln.rstrip('\n'), end=" ")
 #####
+
+
+
 
 
 ##### TESTS BELOW THIS LINE. DO NOT CHANGE ANY CODE BELOW THIS LINE. #####
