@@ -58,7 +58,9 @@ print("\n\n***** Problem 2 *****")
 ## The function should return the new list of accumulated -- mapped! -- values.
 ## HINT: you should be able to write this in 5 lines of code or fewer! 
 
-
+def personal_map(func1, lst1):
+    return_list = [func1(x) for x in lst1]
+    return return_list
 
 
 
@@ -76,6 +78,11 @@ def access_third_elem(seq):
 ## End
 
 # Write your equivalent function and assignment statement here
+
+def sample_func(seq):
+    return_obj = (lambda x: x[2])(seq)
+    return return_obj
+
 
 
 ## [PROBLEM 4]
