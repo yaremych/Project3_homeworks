@@ -82,27 +82,27 @@ def get_user_tweets(username):
 	#	tweet_texts.append(tweet["text"])
 	#return tweet_texts[:3]
 
-test = get_user_tweets("haleybaley24")
-print(type(test))
-print(type(test[1]))
-print(test[1].keys())
+#test = get_user_tweets("haleybaley24")
+#print(type(test))
+#print(type(test[1]))
+#print(test[1].keys())
 
-print(test[1]['id']) # tweet_id
-print(type(test[1]['id']))
+#print(test[1]['id']) # tweet_id
+#print(type(test[1]['id']))
 
 
-print(type(test[1]['user']))
-print(test[1]['user'].keys())
+#print(type(test[1]['user']))
+#print(test[1]['user'].keys())
 
-print(test[1]['user']['screen_name']) # author
+#print(test[1]['user']['screen_name']) # author
 
-print(type(test[1]['created_at']))
-print(test[1]['created_at']) # time_posted
+#print(type(test[1]['created_at']))
+#print(test[1]['created_at']) # time_posted
 
-print(test[1]['text']) #tweet_text
+#print(test[1]['text']) #tweet_text
 
-print(test[1]['retweet_count']) #retweets
-print(type(test[1]['retweet_count']))
+#print(test[1]['retweet_count']) #retweets
+#print(type(test[1]['retweet_count']))
 
 # the returned object is a list of dictionaries, each dictionary holds info about that tweet
 
@@ -217,7 +217,7 @@ conn.close()
 
 ## [PART 3] - Processing data
 
-# Define a function get_twitter_users that accepts a string as in put and returns a SET of the _twitter screennames_ of each twitter user who was mentioned in that string. 
+# Define a function get_twitter_users that accepts a string as input and returns a SET of the _twitter screennames_ of each twitter user who was mentioned in that string. 
 
 # Note that the syntax for mentions in a tweet is that the username is preceded by an "@" character, e.g. "@umsi" or "@aadl", and cannot contain any punctuation besides underscores -- that's how to determine what user names are mentioned. (e.g. @hello? is just the username "hello", but @programmer_at_umsi is "programmer_at_umsi"). 
 
@@ -229,8 +229,9 @@ conn.close()
 
 # If you want to challenge yourself here -- this function definition (what goes under the def statement) CAN be written in one line! Definitely, definitely fine to write it with multiple lines, too, which will be much easier and clearer.
 
-
-
+def get_twitter_users(string1):
+	usernames = re.findall('@([A-z0-9_]+)', string1)
+	return {x for x in usernames}
 
 
 #########
