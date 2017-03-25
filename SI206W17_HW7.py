@@ -8,8 +8,8 @@ import tweepy
 import twitter_info # still need this in the same directory, filled out
 
 ## Make sure to comment with:
-# Your name:
-# The names of any people you worked with for this assignment:
+# Your name: Haley Yaremych
+# The names of any people you worked with for this assignment: None
 
 # ******** #
 ### Useful resources for this HW:
@@ -55,46 +55,128 @@ except:
 # Your function must cache data it retrieves and rely on a cache file!
 # Note that this is a lot like work you have done already in class (but, depending upon what you did previously, may not be EXACTLY the same, so be careful your code does exactly what you want here).
 
+# this function is just for retrieving data and caching it - not doing anything with the data yet
+
+def get_user_tweets(username):
+	unique_identifier = "twitter_{}".format(username) 
+
+	if unique_identifier in CACHE_DICTION: 
+		print('using cached data for', username)
+		twitter_results = CACHE_DICTION[unique_identifier] 
+
+	else:
+		print('getting data from internet for', username)
+		twitter_results = api.user_timeline(username) 
+		
+		CACHE_DICTION[unique_identifier] = twitter_results 
+
+		f = open(CACHE_FNAME,'w')
+		f.write(json.dumps(CACHE_DICTION)) 
+		f.close()
+
+	return twitter_results
+
+	
+	#tweet_texts = [] 
+	#for tweet in twitter_results:
+	#	tweet_texts.append(tweet["text"])
+	#return tweet_texts[:3]
+
+test = get_user_tweets("haleybaley24")
+print(type(test))
+print(type(test[1]))
+print(test[1].keys())
+
+print(test[1]['id']) # tweet_id
+print(type(test[1]['id']))
 
 
+print(type(test[1]['user']))
+print(test[1]['user'].keys())
+
+print(test[1]['user']['screen_name']) # author
+
+print(type(test[1]['created_at']))
+print(test[1]['created_at']) # time_posted
+
+print(test[1]['text']) #tweet_text
+
+print(test[1]['retweet_count']) #retweets
+print(type(test[1]['retweet_count']))
+
+# the returned object is a list of dictionaries, each dictionary holds info about that tweet
 
 
 # Write code to create/build a connection to a database: tweets.db,
 # And then load all of those tweets you got from Twitter into a database table called Tweets, with the following columns in each row:
 
-## tweet_id - containing the unique id that belongs to each tweet
+## tweet_id - containing the unique id that belongs to each tweet 
+# 'id' key
+
 ## author - containing the screen name of the user who posted the tweet (note that even for RT'd tweets, it will be the person whose timeline it is)
+# 'screen_name' key
+
 ## time_posted - containing the date/time value that represents when the tweet was posted (note that this should be a TIMESTAMP column data type!)
+# 'created_at' key
+
 ## tweet_text - containing the text that goes with that tweet
+# 'text' key
+
 ## retweets - containing the number that represents how many times the tweet has been retweeted
+# 'retweet_count' key
 
 # Below we have provided interim outline suggestions for what to do, sequentially, in comments.
 
-# Make a connection to a new database tweets.db, and create a variable to hold the database cursor.
 
 
-# Write code to drop the Tweets table if it exists, and create the table (so you can run the program over and over), with the correct (4) column names and appropriate types for each.
+# Make a connection to a new database tweets.db, and create a variable to hold the database cursor. DONE
+
+# Write code to drop the Tweets table if it exists, and create the table (so you can run the program over and over), with the correct (4) column names and appropriate types for each. DONE
 # HINT: Remember that the time_posted column should be the TIMESTAMP data type!
 
+# Invoke the function you defined above to get a list that represents a bunch of tweets from the UMSI timeline. Save those tweets in a variable called umsi_tweets. DONE
 
-# Invoke the function you defined above to get a list that represents a bunch of tweets from the UMSI timeline. Save those tweets in a variable called umsi_tweets.
-
-
-
-
-# Use a for loop, the cursor you defined above to execute INSERT statements, that insert the data from each of the tweets in umsi_tweets into the correct columns in each row of the Tweets database table.
+# Use a for loop, the cursor you defined above to execute INSERT statements, that insert the data from each of the tweets in umsi_tweets into the correct columns in each row of the Tweets database table. DONE
 
 # (You should do nested data investigation on the umsi_tweets value to figure out how to pull out the data correctly!)
 
-
-
-
 # Use the database connection to commit the changes to the database
-
-
 
 # You can check out whether it worked in the SQLite browser! (And with the tests.)
 
+
+conn = sqlite3.connect('tweets.db')
+cur = conn.cursor()
+
+cur.execute('DROP TABLE IF EXISTS Tweets')
+
+# create the table
+table_spec = 'CREATE TABLE IF NOT EXISTS Tweets (tweet_id INTEGER, author TEXT, created_at TIMESTAMP, tweet_text TEXT, retweets INTEGER)'
+cur.execute(table_spec)
+
+umsi_tweets = get_user_tweets("umsi")
+#print(type(umsi_tweets))
+#print(len(umsi_tweets))
+
+tuples = []
+
+for i in range(20):
+	my_tuple = (umsi_tweets[i]['id'], umsi_tweets[i]['user']['screen_name'], umsi_tweets[i]['created_at'], umsi_tweets[i]['text'], umsi_tweets[i]['retweet_count'])
+	tuples.append(my_tuple)
+
+print(len(tuples[0]))
+print(tuples[0])
+
+# now we have a list of tuples 
+#print(len(tuples))
+#print(type(tuples[0]))
+#print(tuples[0][0])
+	
+statement = 'INSERT INTO Tweets VALUES (?, ?, ?, ?, ?)'
+for t in tuples: 
+	cur.execute(statement, t)
+
+conn.commit()
 
 
 ## [PART 2] - SQL statements
@@ -104,6 +186,11 @@ except:
 
 
 # Select from the database all of the TIMES the tweets you collected were posted and fetch all the tuples that contain them in to the variable tweet_posted_times.
+
+query = "SELECT created_at FROM Tweets"
+cur.execute(query)
+
+tweet_posted_times = cur.fetchall()
 
 
 # Select all of the tweets (the full rows/tuples of information) that have been retweeted MORE than 2 times, and fetch them into the variable more_than_2_rts.
