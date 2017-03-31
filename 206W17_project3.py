@@ -76,6 +76,24 @@ def get_user_tweets(username):
 # Write an invocation to the function for the "umich" user timeline and save the result in a variable called umich_tweets:
 
 umich_tweets = get_user_tweets("umich")
+print(type(umich_tweets)) # list
+test = umich_tweets[1]
+
+print(type(test)) #dict
+print(test.keys())
+# ['contributors', 'source', 'favorited', 'text', 'truncated', 'in_reply_to_status_id', 'in_reply_to_screen_name', 'possibly_sensitive', 'place', 'extended_entities', 'user', 'created_at', 'in_reply_to_user_id', 'id', 'id_str', 'lang', 'retweet_count', 'in_reply_to_user_id_str', 'entities', 'geo', 'favorite_count', 'retweeted', 'in_reply_to_status_id_str', 'coordinates', 'is_quote_status']
+
+print(type(test['text'])) # just a string
+print(type(test['entities'])) #dict
+print(test['entities'].keys()) 
+# ['hashtags', 'urls', 'media', 'user_mentions', 'symbols']
+print(type(test['entities']['user_mentions'])) #list
+print(type(test['entities']['user_mentions'][0])) #dict
+print(test['entities']['user_mentions'][0].keys())
+# ['id', 'id_str', 'screen_name', 'indices', 'name']
+
+print(test['entities']['user_mentions'][0]['screen_name']) #WOOOO
+
 
 
 ## Task 2 - Creating database and loading data into database
@@ -111,13 +129,88 @@ umich_tweets = get_user_tweets("umich")
 
 
 
+# create the tables: 
+
+conn = sqlite3.connect('project3_tweets.db')
+cur = conn.cursor()
+
+statement = 'DROP TABLE IF EXISTS Tweets'
+cur.execute(statement)
+statement = 'DROP TABLE IF EXISTS Users'
+cur.execute(statement)
+
+table_spec = 'CREATE TABLE IF NOT EXISTS Tweets (tweet_id TEXT PRIMARY KEY, tweet_text TEXT, user_id TEXT, time_posted TIMESTAMP, retweets INTEGER)'
+cur.execute(table_spec)
+
+table_spec = 'CREATE TABLE IF NOT EXISTS Users (user_id TEXT PRIMARY KEY, screen_name TEXT, num_favs INTEGER, description TEXT)'
+cur.execute(table_spec)
 
 
+# load data into Users table: umich username and all usernames mentioned in umich's tweets
+
+# already have umich_tweets
+
+# let's create a list of all the usernames mentioned in all 20 tweets: 
+# iterate thru the tweets
+
+all_users = []
+
+for tweet in umich_tweets: 
+	ent = tweet['entities'] # this is a dict
+	mentions = ent['user_mentions'] # this is a list of dictionaries -- iterate thru it
+
+	for m in mentions: 
+		if m['screen_name'] not in all_users:
+			all_users.append(m['screen_name'])
+	# no repeats
+
+print(all_users) # WOOO it works!!
+
+# now we need to get a bunch of data about each of those usernames
+# iterate thru each username in the list
 
 
+testinfo = api.get_user('UmichAthletics')
 
+print(type(testinfo)) #dict 
+print(testinfo.keys())
+# ['following', 'profile_image_url_https', 'profile_location', 'friends_count', 'statuses_count', 'profile_use_background_image', 'has_extended_profile', 'profile_background_image_url_https', 'default_profile', 'utc_offset', 'is_translator', 'profile_image_url', 'profile_background_tile', 'is_translation_enabled', 'id_str', 'profile_sidebar_fill_color', 'contributors_enabled', 'screen_name', 'id', 'entities', 'description', 'name', 'status', 'follow_request_sent', 'profile_background_color', 'protected', 'verified', 'lang', 'created_at', 'profile_banner_url', 'favourites_count', 'profile_sidebar_border_color', 'profile_text_color', 'notifications', 'location', 'listed_count', 'profile_background_image_url', 'default_profile_image', 'translator_type', 'time_zone', 'profile_link_color', 'url', 'geo_enabled', 'followers_count']
 
+# what info do we want: 
 
+# user_id --- testinfo['id_str']
+
+# screen_name --- already have
+
+# num_favs --- testinfo['favourites_count']
+
+# description --- testinfo['description']
+
+#print(testinfo['id_str'])
+#print(testinfo['description'])
+
+#print(testinfo['favourites_count'])
+
+# create a tuple for each user: 
+
+list_of_tuples = []
+
+for user in all_users: 
+	result = api.get_user(user)
+	mytuple = (result['id_str'], user, result['favourites_count'], result['description'])
+	list_of_tuples.append(mytuple)
+
+print(list_of_tuples) #DOPE! 
+
+# now we need to load this data into the Users table: 
+
+statement = 'INSERT INTO Users VALUES (?, ?, ?, ?)'
+for t in list_of_tuples: 
+	cur.execute(statement, t)
+
+conn.commit()
+
+# now we need to make the Tweets table
 
 ## Task 3 - Making queries, saving data, fetching data
 
