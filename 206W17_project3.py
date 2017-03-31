@@ -76,23 +76,23 @@ def get_user_tweets(username):
 # Write an invocation to the function for the "umich" user timeline and save the result in a variable called umich_tweets:
 
 umich_tweets = get_user_tweets("umich")
-print(type(umich_tweets)) # list
-test = umich_tweets[1]
+# print(type(umich_tweets)) # list
+# test = umich_tweets[1]
 
-print(type(test)) #dict
-print(test.keys())
-# ['contributors', 'source', 'favorited', 'text', 'truncated', 'in_reply_to_status_id', 'in_reply_to_screen_name', 'possibly_sensitive', 'place', 'extended_entities', 'user', 'created_at', 'in_reply_to_user_id', 'id', 'id_str', 'lang', 'retweet_count', 'in_reply_to_user_id_str', 'entities', 'geo', 'favorite_count', 'retweeted', 'in_reply_to_status_id_str', 'coordinates', 'is_quote_status']
+# print(type(test)) #dict
+# print(test.keys())
+# # ['contributors', 'source', 'favorited', 'text', 'truncated', 'in_reply_to_status_id', 'in_reply_to_screen_name', 'possibly_sensitive', 'place', 'extended_entities', 'user', 'created_at', 'in_reply_to_user_id', 'id', 'id_str', 'lang', 'retweet_count', 'in_reply_to_user_id_str', 'entities', 'geo', 'favorite_count', 'retweeted', 'in_reply_to_status_id_str', 'coordinates', 'is_quote_status']
 
-print(type(test['text'])) # just a string
-print(type(test['entities'])) #dict
-print(test['entities'].keys()) 
-# ['hashtags', 'urls', 'media', 'user_mentions', 'symbols']
-print(type(test['entities']['user_mentions'])) #list
-print(type(test['entities']['user_mentions'][0])) #dict
-print(test['entities']['user_mentions'][0].keys())
-# ['id', 'id_str', 'screen_name', 'indices', 'name']
+# print(type(test['text'])) # just a string
+# print(type(test['entities'])) #dict
+# print(test['entities'].keys()) 
+# # ['hashtags', 'urls', 'media', 'user_mentions', 'symbols']
+# print(type(test['entities']['user_mentions'])) #list
+# print(type(test['entities']['user_mentions'][0])) #dict
+# print(test['entities']['user_mentions'][0].keys())
+# # ['id', 'id_str', 'screen_name', 'indices', 'name']
 
-print(test['entities']['user_mentions'][0]['screen_name']) #WOOOO
+# print(test['entities']['user_mentions'][0]['screen_name']) #WOOOO
 
 
 
@@ -165,16 +165,16 @@ for tweet in umich_tweets:
 			all_users.append(m['screen_name'])
 	# no repeats
 
-print(all_users) # WOOO it works!!
+#print(all_users) # WOOO it works!!
 
 # now we need to get a bunch of data about each of those usernames
 # iterate thru each username in the list
 
 
-testinfo = api.get_user('UmichAthletics')
+#testinfo = api.get_user('UmichAthletics')
 
-print(type(testinfo)) #dict 
-print(testinfo.keys())
+# print(type(testinfo)) #dict 
+# print(testinfo.keys())
 # ['following', 'profile_image_url_https', 'profile_location', 'friends_count', 'statuses_count', 'profile_use_background_image', 'has_extended_profile', 'profile_background_image_url_https', 'default_profile', 'utc_offset', 'is_translator', 'profile_image_url', 'profile_background_tile', 'is_translation_enabled', 'id_str', 'profile_sidebar_fill_color', 'contributors_enabled', 'screen_name', 'id', 'entities', 'description', 'name', 'status', 'follow_request_sent', 'profile_background_color', 'protected', 'verified', 'lang', 'created_at', 'profile_banner_url', 'favourites_count', 'profile_sidebar_border_color', 'profile_text_color', 'notifications', 'location', 'listed_count', 'profile_background_image_url', 'default_profile_image', 'translator_type', 'time_zone', 'profile_link_color', 'url', 'geo_enabled', 'followers_count']
 
 # what info do we want: 
@@ -201,7 +201,7 @@ for user in all_users:
 	mytuple = (result['id_str'], user, result['favourites_count'], result['description'])
 	list_of_tuples.append(mytuple)
 
-print(list_of_tuples) #DOPE! 
+#print(list_of_tuples) #DOPE! 
 
 # now we need to load this data into the Users table: 
 
@@ -228,20 +228,20 @@ conn.commit()
 
 # retweets --- tester['retweet_count']
 
-tester = umich_tweets[1]
-print(type(tester))
-print(tester.keys())
+# tester = umich_tweets[1]
+# print(type(tester))
+# print(tester.keys())
 
-print(tester['id_str'])
-print(tester['text'])
+# print(tester['id_str'])
+# print(tester['text'])
 
-#print(tester['user'].keys())
-print(tester['user']['id_str'])
+# #print(tester['user'].keys())
+# print(tester['user']['id_str'])
 
 
-print(tester['created_at'])
+# print(tester['created_at'])
 
-print(tester['retweet_count'])
+# print(tester['retweet_count'])
 
 
 # the user_id column should reference the user_id column from the Users table
@@ -254,7 +254,7 @@ for tweet in umich_tweets:
 	mytuple = (tweet['id_str'], tweet['text'], tweet['user']['id_str'], tweet['created_at'], tweet['retweet_count'])
 	tweet_tuples.append(mytuple)
 
-print(tweet_tuples)
+#print(tweet_tuples)
 
 
 statement = 'INSERT INTO Tweets VALUES (?, ?, ?, ?, ?)'
@@ -272,21 +272,46 @@ conn.commit()
 
 # Make a query to select all of the records in the Users database. Save the list of tuples in a variable called users_info.
 
+query = 'SELECT * FROM Users'
+cur.execute(query)
+
+users_info = cur.fetchall()
+#print(users_info)
+
 # Make a query to select all of the user screen names from the database. Save a resulting list of strings (NOT tuples, the strings inside them!) in the variable screen_names. HINT: a list comprehension will make this easier to complete!
+
+query = 'SELECT screen_name FROM Users'
+cur.execute(query)
+
+screen_names = [t[0] for t in cur.fetchall()]
+#print(screen_names)
 
 
 # Make a query to select all of the tweets (full rows of tweet information) that have been retweeted more than 25 times. Save the result (a list of tuples, or an empty list) in a variable called more_than_25_rts.
 
+query = 'SELECT * from Tweets WHERE retweets > 25'
+cur.execute(query)
+
+more_than_25_rts = cur.fetchall()
+print(more_than_25_rts)
 
 
 # Make a query to select all the descriptions (descriptions only) of the users who have favorited more than 25 tweets. Access all those strings, and save them in a variable called descriptions_fav_users, which should ultimately be a list of strings.
 
+query = 'SELECT description FROM Users WHERE num_favs > 25'
+cur.execute(query)
+
+descriptions_fav_users = [t[0] for t in cur.fetchall()]
+print(descriptions_fav_users)
 
 
 # Make a query using an INNER JOIN to get a list of tuples with 2 elements in each tuple: the user screenname and the text of the tweet -- for each tweet that has been retweeted more than 50 times. Save the resulting list of tuples in a variable called joined_result.
 
+query = 'SELECT tweet_text, screen_name FROM Tweets INNER JOIN Users on Users.user_id = Tweets.user_id WHERE retweets > 50'
+cur.execute(query)
 
-
+joined_result = cur.fetchall()
+print(joined_result)
 
 ## Task 4 - Manipulating data with comprehensions & libraries
 
