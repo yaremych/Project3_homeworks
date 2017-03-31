@@ -139,10 +139,11 @@ cur.execute(statement)
 statement = 'DROP TABLE IF EXISTS Users'
 cur.execute(statement)
 
-table_spec = 'CREATE TABLE IF NOT EXISTS Tweets (tweet_id TEXT PRIMARY KEY, tweet_text TEXT, user_id TEXT, time_posted TIMESTAMP, retweets INTEGER)'
-cur.execute(table_spec)
 
 table_spec = 'CREATE TABLE IF NOT EXISTS Users (user_id TEXT PRIMARY KEY, screen_name TEXT, num_favs INTEGER, description TEXT)'
+cur.execute(table_spec)
+
+table_spec = 'CREATE TABLE IF NOT EXISTS Tweets (tweet_id TEXT PRIMARY KEY, tweet_text TEXT, user_id TEXT NOT NULL, time_posted TIMESTAMP, retweets INTEGER, FOREIGN KEY (user_id) REFERENCES Users(user_id) ON UPDATE SET NULL)'
 cur.execute(table_spec)
 
 
@@ -211,6 +212,59 @@ for t in list_of_tuples:
 conn.commit()
 
 # now we need to make the Tweets table
+
+# let's figure out how to pull it out of the nested data, then worry about linking it correctly to the Users table
+
+
+# we need: 
+
+# tweet_id ---- tester['id_str']
+
+# tweet_text --- tester['text']
+
+# user_id ---- tester['user']['id_str']
+
+# time_posted --- tester['created_at']
+
+# retweets --- tester['retweet_count']
+
+tester = umich_tweets[1]
+print(type(tester))
+print(tester.keys())
+
+print(tester['id_str'])
+print(tester['text'])
+
+#print(tester['user'].keys())
+print(tester['user']['id_str'])
+
+
+print(tester['created_at'])
+
+print(tester['retweet_count'])
+
+
+# the user_id column should reference the user_id column from the Users table
+
+# now load data into the table
+
+tweet_tuples = []
+
+for tweet in umich_tweets:
+	mytuple = (tweet['id_str'], tweet['text'], tweet['user']['id_str'], tweet['created_at'], tweet['retweet_count'])
+	tweet_tuples.append(mytuple)
+
+print(tweet_tuples)
+
+
+statement = 'INSERT INTO Tweets VALUES (?, ?, ?, ?, ?)'
+for t in tweet_tuples: 
+	cur.execute(statement, t)
+
+conn.commit()
+
+
+
 
 ## Task 3 - Making queries, saving data, fetching data
 
